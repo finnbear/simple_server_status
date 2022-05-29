@@ -1,8 +1,11 @@
 use std::io;
 use std::str::SplitAsciiWhitespace;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[cfg(feature = "cpu")]
 mod cpu;
+#[cfg(feature = "net")]
+mod net;
 #[cfg(feature = "ram")]
 mod ram;
 #[cfg(feature = "tcp")]
@@ -12,6 +15,8 @@ mod tcp;
 pub struct SimpleServerStatus {
     #[cfg(feature = "cpu")]
     cpu: cpu::CpuStatus,
+    #[cfg(feature = "net")]
+    net: net::NetStatus,
     #[cfg(feature = "ram")]
     ram: ram::RamStatus,
     #[cfg(feature = "tcp")]
@@ -23,6 +28,8 @@ impl SimpleServerStatus {
         Self {
             #[cfg(feature = "cpu")]
             cpu: cpu::CpuStatus::default(),
+            #[cfg(feature = "net")]
+            net: net::NetStatus::default(),
             #[cfg(feature = "ram")]
             ram: ram::RamStatus::default(),
             #[cfg(feature = "tcp")]
@@ -31,14 +38,29 @@ impl SimpleServerStatus {
     }
 
     /// Make a new measurement, clearing the old one.
+    ///
+    /// If an error occurs while updating any one component, all the other updates will still be
+    /// attempted. A maximum of one error will be returned.
     pub fn update(&mut self) -> io::Result<()> {
+        #[allow(unused_mut)]
+        let mut result = Ok(());
         #[cfg(feature = "cpu")]
-        self.cpu.update()?;
+        {
+            result = self.cpu.update().and(result);
+        }
+        #[cfg(feature = "net")]
+        {
+            result = self.net.update().and(result);
+        }
         #[cfg(feature = "ram")]
-        self.ram.update()?;
+        {
+            result = self.ram.update().and(result);
+        }
         #[cfg(feature = "tcp")]
-        self.tcp.update()?;
-        Ok(())
+        {
+            result = self.tcp.update().and(result);
+        }
+        result
     }
 
     /// Returns the fraction (0.0..=1.0) of cpu used between the last two calls to `update`.
@@ -59,6 +81,30 @@ impl SimpleServerStatus {
     #[cfg(feature = "cpu")]
     pub fn cpu_stolen_usage(&self) -> Option<f32> {
         self.cpu.stolen_usage()
+    }
+
+    /// Returns the average transmitted/received bytes per second between the last two calls to `update`.
+    ///
+    /// Aggregates all network interfaces (except `lo`).
+    #[cfg(feature = "net")]
+    pub fn net_bandwidth(&self) -> Option<u64> {
+        self.net.bandwidth()
+    }
+
+    /// Returns the average received bytes per second between the last two calls to `update`.
+    ///
+    /// Aggregates all network interfaces (except `lo`).
+    #[cfg(feature = "net")]
+    pub fn net_reception_bandwidth(&self) -> Option<u64> {
+        self.net.reception_bandwidth()
+    }
+
+    /// Returns the average transmitted bytes per second between the last two calls to `update`.
+    ///
+    /// Aggregates all network interfaces (except `lo`).
+    #[cfg(feature = "net")]
+    pub fn net_transmission_bandwidth(&self) -> Option<u64> {
+        self.net.transmission_bandwidth()
     }
 
     /// Returns the fraction (0.0..=1.0) of ram used as of the last call to `update`.
@@ -87,9 +133,12 @@ fn next(tokens: &mut SplitAsciiWhitespace) -> io::Result<u64> {
     let token = tokens
         .next()
         .ok_or(io::Error::new(io::ErrorKind::UnexpectedEof, "missing u64"))?;
-    token
-        .parse()
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "could not parse u64"))
+    token.parse().map_err(|e| {
+        io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("could not parse '{}' as u64: {:?}", token, e),
+        )
+    })
 }
 
 /// Parses the next u64 from a string of tokens. Will return error if it couldn't be parsed, and 0
@@ -115,4 +164,22 @@ fn sanitize_division(numerator: u64, denominator: u64) -> Option<f32> {
             None
         }
     }
+}
+
+#[allow(unused)]
+fn unix_millis() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+// CPU, net, etc. measurements are relative.
+#[macro_export]
+macro_rules! delta {
+    ($old: expr, $new: expr, $numerator: ident, $denominator: ident) => {{
+        let numerator = $new.$numerator().saturating_sub($old.$numerator());
+        let denominator = $new.$denominator().saturating_sub($old.$denominator());
+        crate::sanitize_division(numerator, denominator)
+    }};
 }

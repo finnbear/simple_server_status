@@ -7,14 +7,18 @@ A simple and fast way to get server status on Linux systems.
 All features are enabled by default:
 
 - CPU (`cpu`)
-  - `cpu_usage() -> Option<f32>`
-  - `cpu_local_usage() -> Option<f32>`
-  - `cpu_stolen_usage() -> Option<f32>` (useful on VPS's to measure noisy neighbors)
+  - `cpu_usage() -> Option<f32>` (0.0..=1.0)
+  - `cpu_local_usage() -> Option<f32>` (0.0..=1.0)
+  - `cpu_stolen_usage() -> Option<f32>` (0.0..=1.0, useful on VPS's to measure noisy neighbors)
+- Network (`net`)
+  - `net_bandwidth() -> Option<u64>` (bytes/s)
+  - `net_reception_bandwidth() -> Option<u64>` (bytes/s)
+  - `net_transmission_bandwidth() -> Option<u64>` (bytes/s)
 - RAM (`ram`)
-  - `ram_usage() -> Option<f32>`
-  - `ram_swap_usage() -> Option<f32>`
+  - `ram_usage() -> Option<f32>` (0.0..=1.0)
+  - `ram_swap_usage() -> Option<f32>` (0.0..=1.0)
 - TCP (`tcp`)
-  - `tcp_connections() -> Option<usize>`
+  - `tcp_connections() -> Option<usize>` (count)
 
 Note: Must call `update()` first, to make a measurement.
 

@@ -1,4 +1,4 @@
-use crate::{next, next_or_zero};
+use crate::{delta, next, next_or_zero};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::{io, mem};
@@ -7,15 +7,6 @@ use std::{io, mem};
 pub struct CpuStatus {
     new: CpuCounters,
     old: CpuCounters,
-}
-
-// CPU measurements are relative.
-macro_rules! delta {
-    ($old: expr, $new: expr, $numerator: ident, $denominator: ident) => {{
-        let numerator = $new.$numerator().saturating_sub($old.$numerator());
-        let denominator = $new.$denominator().saturating_sub($old.$denominator());
-        crate::sanitize_division(numerator, denominator)
-    }};
 }
 
 impl CpuStatus {
@@ -121,6 +112,7 @@ impl CpuCounters {
 
 #[cfg(test)]
 mod tests {
+    use crate::cpu::CpuCounters;
     use crate::SimpleServerStatus;
     use std::time::Duration;
 
@@ -155,5 +147,11 @@ mod tests {
         println!("cpu_stolen_usage: {}", stolen_usage);
         assert!(stolen_usage >= 0.0);
         assert!(stolen_usage <= 1.0);
+    }
+
+    #[test]
+    fn cpu_counters() {
+        let counters = CpuCounters::sample().unwrap();
+        println!("cpu_counters: {:?}", counters);
     }
 }

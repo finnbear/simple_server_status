@@ -1,7 +1,7 @@
+use crate::{next, next_or_zero};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::{io, mem};
-use {next, next_or_zero};
 
 #[derive(Debug, Default)]
 pub struct CpuStatus {

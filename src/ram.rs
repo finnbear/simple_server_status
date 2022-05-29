@@ -1,7 +1,7 @@
+use crate::{next, sanitize_division};
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, ErrorKind};
-use {next, sanitize_division};
 
 #[derive(Debug, Default)]
 pub struct RamStatus {

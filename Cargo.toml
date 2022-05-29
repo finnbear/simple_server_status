@@ -1,0 +1,14 @@
+[package]
+name = "simple_server_status"
+version = "0.1.0"
+edition = "2021"
+authors = ["Finn Bear"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/finnbear/simple_server_status/"
+description = "Simple cpu, ram, and tcp status for Linux servers"
+
+[features]
+default = ["cpu", "ram", "tcp"]
+cpu = []
+ram = []
+tcp = []

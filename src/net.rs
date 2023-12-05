@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn net() {
-        let mut status = SimpleServerStatus::new();
+        let mut status = SimpleServerStatus::default();
 
         assert_eq!(status.net_bandwidth(), None);
         assert_eq!(status.net_reception_bandwidth(), None);

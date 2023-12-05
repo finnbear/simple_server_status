@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn ram() {
-        let mut status = SimpleServerStatus::new();
+        let mut status = SimpleServerStatus::default();
 
         assert_eq!(status.ram_usage(), None);
         assert_eq!(status.ram_swap_usage(), None);

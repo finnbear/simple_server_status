@@ -12,6 +12,7 @@ mod ram;
 mod tcp;
 
 /// Provides simple APIs to measure status of Linux servers.
+#[derive(Default)]
 pub struct SimpleServerStatus {
     #[cfg(feature = "cpu")]
     cpu: cpu::CpuStatus,
@@ -24,17 +25,9 @@ pub struct SimpleServerStatus {
 }
 
 impl SimpleServerStatus {
+    #[deprecated = "use Default::default()"]
     pub fn new() -> Self {
-        Self {
-            #[cfg(feature = "cpu")]
-            cpu: cpu::CpuStatus::default(),
-            #[cfg(feature = "net")]
-            net: net::NetStatus::default(),
-            #[cfg(feature = "ram")]
-            ram: ram::RamStatus::default(),
-            #[cfg(feature = "tcp")]
-            tcp: tcp::TcpStatus::default(),
-        }
+        Self::default()
     }
 
     /// Make a new measurement, clearing the old one.

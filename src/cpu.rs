@@ -118,7 +118,7 @@ mod tests {
 
     #[test]
     fn cpu() {
-        let mut status = SimpleServerStatus::new();
+        let mut status = SimpleServerStatus::default();
 
         assert_eq!(status.cpu_usage(), None);
         assert_eq!(status.cpu_local_usage(), None);

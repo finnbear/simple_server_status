@@ -38,7 +38,7 @@ mod tests {
 
     #[test]
     fn tcp() {
-        let mut status = SimpleServerStatus::new();
+        let mut status = SimpleServerStatus::default();
 
         assert_eq!(status.tcp_connections(), None);
 

@@ -11,3 +11,5 @@ Cargo.lock
 
 # IDE
 .idea/
+
+src/*.rs.tmp

@@ -10,6 +10,8 @@ mod net;
 mod ram;
 #[cfg(feature = "tcp")]
 mod tcp;
+#[cfg(feature = "udp")]
+mod udp;
 
 /// Provides simple APIs to measure status of Linux servers.
 #[derive(Default)]
@@ -22,6 +24,8 @@ pub struct SimpleServerStatus {
     ram: ram::RamStatus,
     #[cfg(feature = "tcp")]
     tcp: tcp::TcpStatus,
+    #[cfg(feature = "tcp")]
+    udp: udp::UdpStatus,
 }
 
 impl SimpleServerStatus {
@@ -52,6 +56,10 @@ impl SimpleServerStatus {
         #[cfg(feature = "tcp")]
         {
             result = self.tcp.update().and(result);
+        }
+        #[cfg(feature = "udp")]
+        {
+            result = self.udp.update().and(result);
         }
         result
     }
@@ -116,6 +124,12 @@ impl SimpleServerStatus {
     #[cfg(feature = "tcp")]
     pub fn tcp_connections(&self) -> Option<usize> {
         self.tcp.connections()
+    }
+
+    /// Returns the number of UDP sockets as of the last call to `update`.
+    #[cfg(feature = "udp")]
+    pub fn udp_sockets(&self) -> Option<usize> {
+        self.udp.sockets()
     }
 }
 

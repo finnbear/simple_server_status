@@ -110,9 +110,11 @@ mod tests {
         assert!(usage > 0.0);
         assert!(usage <= 1.0);
 
-        let swap_usage = status.ram_swap_usage().unwrap();
-        println!("ram_swap_usage: {}", swap_usage);
-        assert!(swap_usage >= 0.0);
-        assert!(swap_usage <= 1.0);
+        // Allow swap to not exist.
+        if let Some(swap_usage) = status.ram_swap_usage() {
+            println!("ram_swap_usage: {}", swap_usage);
+            assert!(swap_usage >= 0.0);
+            assert!(swap_usage <= 1.0);
+        }
     }
 }

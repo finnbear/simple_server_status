@@ -1,6 +1,6 @@
 [package]
 name = "simple_server_status"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Finn Bear"]
 license = "MIT OR Apache-2.0"
@@ -8,8 +8,9 @@ repository = "https://github.com/finnbear/simple_server_status/"
 description = "Simple cpu, ram, net, and tcp status for Linux servers"
 
 [features]
-default = ["cpu", "net", "ram", "tcp"]
+default = ["cpu", "net", "ram", "tcp", "udp"]
 cpu = []
 net = []
 ram = []
 tcp = []
+udp = []

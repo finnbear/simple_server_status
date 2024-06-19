@@ -19,6 +19,8 @@ All features are enabled by default:
   - `ram_swap_usage() -> Option<f32>` (0.0..=1.0)
 - TCP (`tcp`)
   - `tcp_connections() -> Option<usize>` (count)
+- UDP (`udp`)
+  - `udp_sockets() -> Option<usize>` (count)
 
 Note: Must call `update()` first, to make a measurement.
 

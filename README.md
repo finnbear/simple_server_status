@@ -4,7 +4,7 @@ A simple and fast way to get server status on Linux systems.
 
 ## Features
 
-All features are enabled by default:
+All features except `conntrack` are enabled by default:
 
 - CPU (`cpu`)
   - `cpu_usage() -> Option<f32>` (0.0..=1.0)
@@ -21,6 +21,8 @@ All features are enabled by default:
   - `tcp_connections() -> Option<usize>` (count)
 - UDP (`udp`)
   - `udp_sockets() -> Option<usize>` (count)
+- Conntrack (`conntrack`)
+  - `conntrack_sessions() -> Option<usize>` (count)
 
 Note: Must call `update()` first, to make a measurement.
 

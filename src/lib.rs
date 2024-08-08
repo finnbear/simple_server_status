@@ -2,6 +2,8 @@ use std::io;
 use std::str::SplitAsciiWhitespace;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(feature = "conntrack")]
+mod conntrack;
 #[cfg(feature = "cpu")]
 mod cpu;
 #[cfg(feature = "net")]
@@ -16,6 +18,8 @@ mod udp;
 /// Provides simple APIs to measure status of Linux servers.
 #[derive(Default)]
 pub struct SimpleServerStatus {
+    #[cfg(feature = "conntrack")]
+    conntrack: conntrack::ConntrackStatus,
     #[cfg(feature = "cpu")]
     cpu: cpu::CpuStatus,
     #[cfg(feature = "net")]
@@ -41,6 +45,10 @@ impl SimpleServerStatus {
     pub fn update(&mut self) -> io::Result<()> {
         #[allow(unused_mut)]
         let mut result = Ok(());
+        #[cfg(feature = "conntrack")]
+        {
+            result = self.conntrack.update().and(result);
+        }
         #[cfg(feature = "cpu")]
         {
             result = self.cpu.update().and(result);
@@ -62,6 +70,12 @@ impl SimpleServerStatus {
             result = self.udp.update().and(result);
         }
         result
+    }
+
+    /// Returns the number of conntrack sessions as of the last call to `update`.
+    #[cfg(feature = "conntrack")]
+    pub fn conntrack_sessions(&self) -> Option<usize> {
+        self.conntrack.sessions()
     }
 
     /// Returns the fraction (0.0..=1.0) of cpu used between the last two calls to `update`.
